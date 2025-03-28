@@ -35,6 +35,7 @@ import {
   useSession,
   type DefaultWorkspaceProps,
   type FetchResponse,
+  type CloseWorkspaceOptions,
 } from '@openmrs/esm-framework';
 import { z } from 'zod';
 import { type ConfigObject } from '../config-schema';
@@ -64,6 +65,7 @@ interface AppointmentsFormProps {
   recurringPattern?: RecurringPattern;
   patientUuid?: string;
   context: string;
+  closeWorkspaceWithSavedChanges(data: any, closeWorkspaceOptions?: CloseWorkspaceOptions): void;
 }
 
 const time12HourFormatRegexPattern = '^(1[0-2]|0?[1-9]):[0-5][0-9]$';
@@ -77,6 +79,7 @@ const AppointmentsForm: React.FC<AppointmentsFormProps & DefaultWorkspaceProps> 
   context,
   closeWorkspace,
   promptBeforeClosing,
+  closeWorkspaceWithSavedChanges,
 }) => {
   const { patient } = usePatient(patientUuid);
   const { mutateAppointments } = useMutateAppointments();
@@ -362,10 +365,11 @@ const AppointmentsForm: React.FC<AppointmentsFormProps & DefaultWorkspaceProps> 
       ? saveRecurringAppointments(recurringAppointmentPayload, abortController)
       : saveAppointment(appointmentPayload, abortController)
     ).then(
-      ({ status }) => {
+      ({ status, data }) => {
         if (status === 200) {
           setIsSubmitting(false);
           setIsSuccessful(true);
+          closeWorkspaceWithSavedChanges(data);
           mutateAppointments();
           showSnackbar({
             isLowContrast: true,
