@@ -50,7 +50,7 @@ jobs:
         run: yarn verify
 
       - name: 🏗️ Run build
-        run: yarn turbo run build --concurrency=5
+        run: yarn turbo run build --filter='@csaude/*' --concurrency=5
 
       - name: 📤 Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -96,7 +96,7 @@ jobs:
         run: yarn workspaces foreach --worktree --topological --exclude @openmrs/esm-patient-management version "$(node -e "console.log(require('semver').inc(require('./package.json').version, 'patch'))")-pre.${{ github.run_number }}"
 
       - name: 🏗️ Build
-        run: yarn turbo run build --concurrency=5
+        run: yarn turbo run build --filter='@csaude/*' --concurrency=5
 
       - name: 🔧 Configure Git
         run: git config user.email "info@openmrs.org" && git config user.name "OpenMRS CI"
@@ -142,7 +142,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn install --immutable
 
-      - run: yarn turbo run build --color
+      - run: yarn turbo run build --filter='@csaude/*' --color
       - run: yarn config set npmAuthToken "${NODE_AUTH_TOKEN}" && yarn run ci:publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
